@@ -1,0 +1,9 @@
+FROM zolotoykod/web:latest
+# FROM <project_name>:latest
+
+COPY ./www/composer.json /var/www/bitrix/
+COPY ./www/composer.lock /var/www/bitrix/
+RUN composer update && composer clear-cache
+
+COPY ./www/ /var/www/bitrix/
+RUN chown -R www-data.www-data /var/www/bitrix/

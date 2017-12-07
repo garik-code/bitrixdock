@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  web:
+    ports:
+      - "9000:900"
+    environment:
+      - ENVIRONMENT=development
+      - VIRTUAL_HOST
+    volumes:
+      - ./www:/var/www/bitrix:Z
+
+networks:
+  proxy:
+    external:
+      name: "nginx-proxy"

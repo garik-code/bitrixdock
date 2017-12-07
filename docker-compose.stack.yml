@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: ./www
+      dockerfile: Dockerfile-swarm
+    image: ${APP_IMAGE_NAME}
+    environment:
+      - ENVIRONMENT
+    volumes:
+      - uploads:/var/www/bitrix/upload
+      - bx_core:/var/www/bitrix/bitrix
+    deploy:
+      replicas: 1
+      labels:
+        - com.df.notify=true
+        - com.df.distribute=true
+        - com.df.serviceDomain=${DOMAIN}
+        - com.df.serviceDomainMatchAll=true
+        - com.df.servicePath=/
+        - com.df.port=80
+      update_config:
+        delay: 10s
+
+volumes:
+  uploads:
+    driver: vsphere
+    driver_opts:
+      size: 5gb
+
+  bx_core:
+    driver: vsphere
+    driver_opts:
+      size: 2gb
+
+  mysql_data:
+    driver: vsphere
+    driver_opts:
+      size: 5gb
+
+networks:
+  proxy:
+    external: true

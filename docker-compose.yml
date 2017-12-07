@@ -1,90 +1,38 @@
-version: '2'
+version: '3'
 
 services:
-    php:
-        build: ./php
-        container_name: php
-        volumes_from:
-            - source
-        ports:
-            - '9000:9000'
-        links:
-            - mysql
-            - memcached
-        networks:
-            - bitrix
-        restart: always
-    # apache:
-    #     build: ./apache
-    #     container_name: apache
-    #     depends_on:
-    #         - source
-    #     volumes_from:
-    #         - source
-    #     ports:
-    #         - '80:80'
-    #         - '443:443'
-    #     links:
-    #         - php
-    #     networks:
-    #         - bitrix
-    #     restart: always
-    nginx:
-        build: ./nginx
-        container_name: nginx
-        volumes_from:
-            - source
-        ports:
-            - '80:80'
-            - '443:443'
-        links:
-            - php
-        networks:
-            - bitrix
-        restart: always
-    mysql:
-        build: ./mysql
-        container_name: mysql
-        volumes_from:
-            - source
-        ports:
-            - '3306:3306'
-        environment:
-            MYSQL_DATABASE: bitrix
-            MYSQL_USER: bitrix
-            MYSQL_PASSWORD: 123
-            MYSQL_ROOT_PASSWORD: 123
-        networks:
-            - bitrix
-        restart: always
-    memcached:
-        image: memcached:1.5-alpine
-        container_name: memcached
-        volumes_from:
-            - source
-        ports:
-            - '11211:11211'
-        networks:
-            - bitrix
-        restart: always
-    source:
-        image: alpine:latest
-        container_name: source
-        volumes:
-            - ./logs/nginx:/var/log/nginx
-            - ./logs/php:/var/log/php
-            - ./logs/mysql:/var/log/mysql
-            - ./logs/memcached:/var/log/memcached
-            - ./data/mysql:/var/lib/mysql
-            - ./data/memcached:/var/lib/memcached
-            - /var/www/bitrix:/var/www/bitrix
-            - /etc/localtime:/etc/localtime/:ro
-        networks:
-            - bitrix
+  web:
+    image: zolotoykod/web:latest
+    # build: ./www
+    # image: <project_name>:latest
+    depends_on:
+      - mysql
+      - memcached
+    networks:
+      - default
+      - proxy
+
+  mysql:
+    image: zolotoykod/mysql:latest
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: bitrix
+      MYSQL_USER: bitrix
+      MYSQL_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: 123
+
+  memcached:
+    image: memcached:1.5-alpine
+    volumes:
+      - cache:/var/lib/memcached
+
+volumes:
+  mysql:
+    driver: local
+  cache:
+    driver: local
+
 networks:
-    bitrix:
-        driver: bridge
-        ipam:
-            driver: default
-            config:
-                - subnet: 10.100.0.0/24
+  proxy:
+    external: true
