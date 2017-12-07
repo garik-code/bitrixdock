@@ -3,7 +3,7 @@ version: '3'
 services:
   web:
     image: zolotoykod/web:latest
-    # build: ./www
+    # build: ./
     # image: <project_name>:latest
     depends_on:
       - mysql
